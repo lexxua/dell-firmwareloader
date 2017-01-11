@@ -163,4 +163,4 @@ writetask = ''.join(filecontent)
 
 writesh.write(writetask)
 writesh.close()
-os.chmod(executor,'0755')
+os.chmod(executor,755)
