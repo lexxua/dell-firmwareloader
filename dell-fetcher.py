@@ -47,6 +47,7 @@ def pullfirmware(fwurl, fwversion,bundleversion):
     profileurl = ('%s%s' % (fwurl, fwversion))
     r = requests.get(url=profileurl, verify=False,
                      stream=True)
+
     path = '/%s/%s/' % (storagelocation,bundleversion)
     fwversion = re.findall('.*/(.*.BIN)$', fwversion)
     fwversion = fwversion[0]
@@ -123,7 +124,7 @@ for child in root.iter('SoftwareBundle'):
     if (osed.attrib['osCode'] != "LIN"):
         continue
     bundlever = child.find('Name/Display')
-    bundlever = bundlever.text
+    bundlever = (bundlever.text).replace('/','-')
     contents = child.find('Contents')
     for element in contents:
         applyorder += (element.attrib['path'],)
