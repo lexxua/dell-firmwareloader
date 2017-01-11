@@ -30,10 +30,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--model', help='Server model code e.g. R330 or R320/NX400', required=True)
 parser.add_argument('--storagelocation', help='Where keep downloaded files (Default: /tmp)',
                     required=False, default='/tmp')
+parser.add_argument('--repull', help='Force re-download', required=False,
+                    default='True')
 args = parser.parse_args()
 cmdargs = vars(args)
 server_model = cmdargs['model']
 storagelocation = cmdargs['storagelocation']
+repull = cmdargs['repull']
 
 def md5(fname):
     hash_md5 = hashlib.md5()
@@ -72,7 +75,8 @@ print downloadedmd5
 if curentmd5 == downloadedmd5:
     print "Bingo no change required see you tomorrow"
     os.unlink(dailyfile)
-    sys.exit()
+    if repull is False:
+        sys.exit()
 else:
     currentmd5 = open("static/catalog.md5", "w")
     currentmd5.write(downloadedmd5)
