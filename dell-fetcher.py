@@ -7,10 +7,11 @@ import uuid
 import argparse
 
 filecontent = []
-currentmd5 = open("static/catalog.md5","r+")
+currentmd5 = open("static/catalog.md5","r")
 bashheader = open("static/apply_bundle.sh")
 data = bashheader.read()
 curentmd5 = currentmd5.read()
+currentmd5.close()
 filecontent.append(data)
 downloadurl = "http://downloads.dell.com/"
 catalogurl="http://ftp.dell.com/catalog/catalog.cab"
@@ -72,6 +73,7 @@ if curentmd5 == downloadedmd5:
     os.unlink(dailyfile)
     sys.exit()
 else:
+    currentmd5 = open("static/catalog.md5", "w")
     currentmd5.write(downloadedmd5)
     currentmd5.close()
     os.system("cabextract -d static/ %s"%(dailyfile))
