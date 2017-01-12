@@ -27,16 +27,20 @@ exit $RETURN_STATUS"""
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', help='Server model code e.g. R330 or R320/NX400', required=True)
+parser.add_argument('--model', help='Server model code e.g. R330 or R320/NX400', required=True, nargs='*')
 parser.add_argument('--storagelocation', help='Where keep downloaded files (Default: /tmp)',
                     required=False, default='/tmp')
 parser.add_argument('--repull', help='Force re-download', required=False,
                     default='True')
 args = parser.parse_args()
 cmdargs = vars(args)
-server_model = cmdargs['model']
+server_modelarr = cmdargs['model']
 storagelocation = cmdargs['storagelocation']
 repull = cmdargs['repull']
+
+print server_modelarr
+
+
 
 def md5(fname):
     hash_md5 = hashlib.md5()
@@ -120,7 +124,8 @@ for child in root.iter('SoftwareComponent'):
 applyorder = ()
 fetchfw = []
 rebootreqdict = {}
-for child in root.iter('SoftwareBundle'):
+for server_model in server_modelarr:
+ for child in root.iter('SoftwareBundle'):
     target = child.find('TargetSystems/Brand/Model/Display')
     if (target.text != server_model):
         continue
@@ -145,13 +150,13 @@ for child in root.iter('SoftwareBundle'):
                 format(software[mypath][0],software[mypath][1],software[mypath][2],software[mypath][3],software[mypath][4],software[mypath][5],software[mypath][6])
             print "---"
 
-for fw in fetchfw:
+ for fw in fetchfw:
     i=1
     pullfirmware(downloadurl,fw,bundlever)
-iteration = 1
-totaliterations=str(len(applyorder))
+ iteration = 1
+ totaliterations=str(len(applyorder))
 
-for task in applyorder:
+ for task in applyorder:
     if task in rebootreqdict.keys():
         reboot = rebootreqdict[task]
         if reboot == "true":
@@ -163,11 +168,11 @@ for task in applyorder:
     dupel = 'ExecuteDup %s %s "%s" "" "" "%s" \n' % (str(iteration), totaliterations, task,reboot)
     iteration += 1
     filecontent.append(dupel)
-filecontent.append(footer)
-executor ="/%s/%s/apply_bundle.sh"%(storagelocation,bundlever)
-writesh = open(executor,"w")
-writetask = ''.join(filecontent)
+ filecontent.append(footer)
+ executor ="/%s/%s/apply_bundle.sh"%(storagelocation,bundlever)
+ writesh = open(executor,"w")
+ writetask = ''.join(filecontent)
 
-writesh.write(writetask)
-writesh.close()
-os.chmod(executor,755)
+ writesh.write(writetask)
+ writesh.close()
+ os.chmod(executor,755)
