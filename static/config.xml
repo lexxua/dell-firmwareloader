@@ -1,0 +1,7 @@
+<config>
+    <storagelocation>/tmp/</storagelocation>
+    <models>
+        <model>R320/NX400</model>
+        <model>R330</model>
+    </models>
+</config>

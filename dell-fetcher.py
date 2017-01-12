@@ -5,7 +5,8 @@ import requests
 import hashlib
 import uuid
 import argparse
-
+server_modelarr=[]
+storagelocation=""
 filecontent = []
 currentmd5 = open("static/catalog.md5","r")
 bashheader = open("static/apply_bundle.sh")
@@ -17,25 +18,38 @@ downloadurl = "http://downloads.dell.com/"
 catalogurl="http://ftp.dell.com/catalog/catalog.cab"
 uuidofday=uuid.uuid1()
 dailyfile="static/%s.cab"%(uuidofday)
+config = 'static/config.xml'
 footer="""mytime=`date`
 echo End time: $mytime | tee -a $logFile
 echo Please see log, located at $logFile for details of the script execution
 echo script exited with status $RETURN_STATUS
 echo $rebootMessage
 exit $RETURN_STATUS"""
-
-
+nocmd = True
+if os.path.exists(config):
+    nocmd=False
+    config = xml.etree.ElementTree.parse(config)
+    root = config.getroot()
+    #print confroot.iter()['models']
+    for elemnt in root:
+        if elemnt.tag == "storagelocation":
+            storagelocation = elemnt.text
+        if elemnt.tag == "models":
+            for model in elemnt:
+                server_modelarr.append(model.text)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', help='Server model code e.g. R330 or R320/NX400', required=True, nargs='*')
-parser.add_argument('--storagelocation', help='Where keep downloaded files (Default: /tmp)',
+if nocmd:
+ parser.add_argument('--model', help='Server model code e.g. R330 or R320/NX400', required=True, nargs='*')
+ parser.add_argument('--storagelocation', help='Where keep downloaded files (Default: /tmp)',
                     required=False, default='/tmp')
 parser.add_argument('--repull', help='Force re-download', required=False,
                     default='True')
 args = parser.parse_args()
 cmdargs = vars(args)
-server_modelarr = cmdargs['model']
-storagelocation = cmdargs['storagelocation']
+if nocmd:
+ server_modelarr = cmdargs['model']
+ storagelocation = cmdargs['storagelocation']
 repull = cmdargs['repull']
 
 print server_modelarr
@@ -87,6 +101,8 @@ else:
     currentmd5.close()
     os.system("cabextract -d static/ %s"%(dailyfile))
     os.unlink(dailyfile)
+
+
 
 
 tree = xml.etree.ElementTree.parse('static/Catalog.xml')
