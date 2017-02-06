@@ -5,11 +5,12 @@ import requests
 import hashlib
 import uuid
 import argparse
+scriptlocation=os.path.dirname(__file__)
 server_modelarr=[]
 storagelocation=""
 filecontent = []
-currentmd5 = open("static/catalog.md5","r")
-bashheader = open("static/apply_bundle.sh")
+currentmd5 = open("%s/static/catalog.md5"%scriptlocation,"r")
+bashheader = open("%s/static/apply_bundle.sh"%scriptlocation)
 data = bashheader.read()
 curentmd5 = currentmd5.read()
 currentmd5.close()
@@ -17,8 +18,8 @@ filecontent.append(data)
 downloadurl = "http://downloads.dell.com/"
 catalogurl="http://ftp.dell.com/catalog/catalog.cab"
 uuidofday=uuid.uuid1()
-dailyfile="static/%s.cab"%(uuidofday)
-config = 'static/config.xml'
+dailyfile="%s/static/%s.cab"%(scriptlocation, uuidofday)
+config = '%s/static/config.xml'%scriptlocation
 footer="""mytime=`date`
 echo End time: $mytime | tee -a $logFile
 echo Please see log, located at $logFile for details of the script execution
@@ -96,16 +97,16 @@ if curentmd5 == downloadedmd5:
     if repull is False:
         sys.exit()
 else:
-    currentmd5 = open("static/catalog.md5", "w")
+    currentmd5 = open("%s/static/catalog.md5"%scriptlocation, "w")
     currentmd5.write(downloadedmd5)
     currentmd5.close()
-    os.system("cabextract -d static/ %s"%(dailyfile))
+    os.system("cabextract -d %s/static/ %s"%(scriptlocation,dailyfile))
     os.unlink(dailyfile)
 
 
 
 
-tree = xml.etree.ElementTree.parse('static/Catalog.xml')
+tree = xml.etree.ElementTree.parse('%s/static/Catalog.xml'%scriptlocation)
 root = tree.getroot()
 repository_path = ''
 software = {}
